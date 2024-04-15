@@ -15,8 +15,8 @@ def centr(X, k):
             distances = np.linalg.norm(centroids - x, axis=1)
             dists.append(distances.min())
 
-        obj_ind = np.array(dists).argmax()
-        next_centroid = X[obj_ind]
+        centroid_ind = np.array(dists).argmax()
+        next_centroid = X[centroid_ind]
         centroids.append(next_centroid)
 
     centroids = np.array(centroids)
