@@ -26,7 +26,7 @@ def centr(X, k):
 iris = load_iris()
 X = iris.data
 
-k = 4
+k = 3
 centroids = centr(X, k)
 
 plt.figure()
