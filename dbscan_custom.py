@@ -1,5 +1,4 @@
 import pygame
-import math
 import numpy as np
 
 
@@ -7,6 +6,14 @@ def distance(point1, point2):
     x1, y1 = point1
     x2, y2 = point2
     return np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+
+def find_neighbors(points, point, epsilon):
+    neighbors = []
+    for other_point in points:
+        if other_point != point and distance(point, other_point) <= epsilon:
+            neighbors.append(other_point)
+    return neighbors
 
 
 def dbscan(points, epsilon, min_points):
@@ -17,11 +24,7 @@ def dbscan(points, epsilon, min_points):
         if point in clusters:
             continue
 
-        neighbors = []
-        for other_point in points:
-            dist = distance(point, other_point)
-            if other_point != point and distance(point, other_point) <= epsilon:
-                neighbors.append(other_point)
+        neighbors = find_neighbors(points, point, epsilon)
 
         if len(neighbors) < min_points:
             clusters[point] = -1
@@ -29,21 +32,17 @@ def dbscan(points, epsilon, min_points):
 
         clusters[point] = cluster_id
 
-        in_cluster = False
+        queue = neighbors.copy()
+        while queue:
+            current_point = queue.pop(0)
+            if current_point in clusters and clusters[current_point] != -1:
+                continue
+            clusters[current_point] = cluster_id
+            current_neighbors = find_neighbors(points, current_point, epsilon)
+            if len(current_neighbors) >= min_points:
+                queue.extend(current_neighbors)
 
-        for neighbor in neighbors:
-            if neighbor in clusters and clusters[neighbor] != -1:
-                cluster_id = clusters[neighbor]
-                clusters[point] = cluster_id
-                in_cluster = True
-                break
-            clusters[neighbor] = cluster_id
-
-        if in_cluster:
-            for neighbor in neighbors:
-                clusters[neighbor] = cluster_id
-
-        cluster_id += 1;
+        cluster_id += 1
 
     return clusters
 
